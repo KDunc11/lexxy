@@ -33,7 +33,10 @@ export class LexicalToolbarElement extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.dispose()
+    // A move runs this after the toolbar is connected again, and after its editor has already re-attached it
+    if (!this.isConnected) {
+      this.dispose()
+    }
   }
 
   dispose() {
@@ -102,7 +105,7 @@ export class LexicalToolbarElement extends HTMLElement {
   }
 
   #reconnect() {
-    this.disconnectedCallback()
+    this.dispose()
     this.connectedCallback()
   }
 

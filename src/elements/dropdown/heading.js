@@ -87,7 +87,7 @@ export class HeadingDropdown extends HTMLElement {
     if (!toolbar) return
 
     await toolbar.getEditorElement()
-    if (this.isConnected && this.#toolbar) callback()
+    if (this.isConnected && this.#editor) callback()
   }
 
   #setUpButtons() {

@@ -98,3 +98,44 @@ test.describe("Reconnect with extension dispose lifecycle", () => {
     expect(await pingCount()).toBe(2)
   })
 })
+
+test.describe("Move", () => {
+  test.beforeEach(async ({ page, editor }) => {
+    await page.goto("/")
+    await editor.waitForConnected()
+  })
+
+  test("moving an editor in the same task it was inserted keeps its toolbar working", async ({ page, editor }) => {
+    const errors = []
+    page.on("pageerror", (error) => errors.push(error.message))
+
+    await page.evaluate(() => {
+      document.querySelector("lexxy-editor").remove()
+
+      const element = document.createElement("lexxy-editor")
+      document.querySelector(".body").append(element)
+      document.querySelector(".events").append(element)
+    })
+
+    await editor.waitForConnected()
+    expect(errors).toEqual([])
+    await assertBoldButtonFormats(page, editor)
+  })
+
+  test("moving an initialized editor keeps its toolbar working", async ({ page, editor }) => {
+    await page.evaluate(() => {
+      document.querySelector(".events").append(document.querySelector("lexxy-editor"))
+    })
+
+    await editor.waitForConnected()
+    await assertBoldButtonFormats(page, editor)
+  })
+
+  async function assertBoldButtonFormats(page, editor) {
+    await editor.send("Hello")
+    await editor.selectAll()
+    await page.locator("lexxy-toolbar [data-command='bold']").click()
+
+    await expect(editor.content.locator("strong, b")).toHaveText("Hello")
+  }
+})
